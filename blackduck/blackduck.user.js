@@ -53,7 +53,7 @@ function modifyDashboard() {
 function addCopyIssueIdButton() {
     if (!$("#copyButton").length) {
         //var target = $("nav[aria-label='Breadcrumbs']");
-        var target = $("h1")
+        var target = $("h1 nav[aria-label='Breadcrumbs'] ol")
         // get base URL without query string
         var baseUrl = window.location.href.split("?")[0];
         var parts = baseUrl.split("/");
@@ -75,7 +75,8 @@ URL: ${baseUrl}`;
             "value": "Copy",
             "id": "copyButton",
             "title": "Copy ID and Name to Clipboard",
-            "data-clipboard-text": textToCopy
+            "data-clipboard-text": textToCopy,
+            "style": "font-size: 10px; padding: 2px 6px;" // inline styling for small size
         });
 
         target.after(plainCopy);
