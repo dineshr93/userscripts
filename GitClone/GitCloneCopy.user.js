@@ -39,8 +39,13 @@ $(document).ready(function () {
 
 // Identify Page and execute corresponding scripts
 function identifyPageAndExecuteScripts() {
-    if ($("#repo-title-component").length) {
+    // if ($("#repo-title-component").length) {
+    //     modifyDashboard();
+    // }
+    if ($("img[alt='Owner avatar']").length) {
         modifyDashboard();
+    } else {
+        modifyDashboard2();
     }
 }
 
@@ -50,7 +55,11 @@ unsafeWindow.identifyPageAndExecuteScripts = exportFunction(identifyPageAndExecu
 // Modify the dashboard view
 function modifyDashboard() {
     addCopyIssueIdButton();
+}
 
+// Modify the dashboard view
+function modifyDashboard2() {
+    addCopyIssueId2Button();
 }
 
 // Adding a button which copies a special formatted issue Id to the clipboard
@@ -99,6 +108,64 @@ function addCopyIssueIdButton() {
 
     if (!$("#sshcopyButton").length) {
         target = $("#repo-title-component");
+
+        plainCopy = $("<button>", {
+            text: "SSH Clone",
+            id: "sshcopyButton",
+            title: "Copy ID and Name to Clipboard",
+            "data-clipboard-text": sshClone
+        });
+
+        target.after(plainCopy);
+
+        new Clipboard('#sshcopyButton');
+    }
+}
+
+// Adding a button which copies a special formatted issue Id to the clipboard
+function addCopyIssueId2Button() {
+    let currentUrl = window.location.href;
+    let cloneCommand = "";
+    let sshClone = "";
+
+    // Remove any trailing slashes
+    if (currentUrl.endsWith("/")) {
+        currentUrl = currentUrl.slice(0, -1);
+    }
+
+    if (currentUrl.includes("/tree/")) {
+        // Split repo and branch
+        let [repoUrl, branchName] = currentUrl.split("/tree/");
+        cloneCommand = `git clone ${repoUrl}.git -b ${branchName}`;
+
+        // Convert repoUrl to ssh
+        sshClone = repoUrl
+            .replace("https://", "git@")     // replace protocol
+            .replace("/", ":", 1) + ".git";  // first slash after host becomes :
+        sshClone = `git clone ${sshClone} -b ${branchName}`;
+    } else {
+        cloneCommand = `git clone ${currentUrl}.git`;
+
+        sshClone = currentUrl
+            .replace("https://", "git@")
+            .replace("/", ":", 1) + ".git";
+        sshClone = `git clone ${sshClone}`;
+    }
+    var target = $("#repository-container-header > div.d-flex.flex-nowrap.flex-justify-end.mb-3.px-3.px-lg-5 > div.flex-auto.min-width-0.width-fit > div");
+    if (!$("#titlecopyButton").length) {
+        var plainCopy = $("<button>", {
+            text: "https Clone",
+            id: "titlecopyButton",
+            title: "Copy ID and Name to Clipboard",
+            "data-clipboard-text": cloneCommand
+        });
+
+        target.after(plainCopy);
+
+        new Clipboard('#titlecopyButton');
+    }
+
+    if (!$("#sshcopyButton").length) {
 
         plainCopy = $("<button>", {
             text: "SSH Clone",
