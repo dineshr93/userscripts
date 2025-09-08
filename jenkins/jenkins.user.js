@@ -36,7 +36,7 @@ $(document).ready(function () {
 
 // Identify Page and execute corresponding scripts
 function identifyPageAndExecuteScripts() {
-    if ($(".jenkins-app-bar__content.jenkins-build-caption").length) {
+    if ($(".jenkins-app-bar__content.jenkins-build-caption").length || $("#skip2content")) {
         modifyDashboard();
     }
 }
