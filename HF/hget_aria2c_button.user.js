@@ -31,7 +31,7 @@
     }
 
     function buildCommand(info) {
-        return `mkdir -p ~/models/${info.model} && aria2c -x 16 -s 16 -k 1M --continue=true "${info.downloadUrl}" -o ${info.filename}`;
+        return `mkdir -p ~/models/${info.model} && cd ~/models/${info.model} && aria2c -x 16 -s 16 -k 1M --continue=true "${info.downloadUrl}" -o ${info.filename}`;
     }
 
     function addButton(info) {
