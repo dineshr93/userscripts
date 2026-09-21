@@ -1,22 +1,70 @@
-MIT License
+// ==UserScript==
+// @name        Fossology license copy Button
+// @namespace   com.dinesh
+// @description Adds a copy button to Fossology breadcrumbs that copies copyright
+// @version     9.6.2
+// @include     https://*fossology*?mod=view-license&upload=*
+// @include     https://fossology*/repo/?mod=copyright-view&agent=*&upload=*&item=*
+// @include     https://fossology*/repo/?mod=view-license&pfile=*&upload=*&item=*
+// @require     https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js
+// @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js
+// @require     https://cdn.rawgit.com/zenorocha/clipboard.js/v1.5.12/dist/clipboard.min.js
+// @grant       GM_getValue
+// @grant       GM_setValue
+// @grant       GM_addStyle
+// @grant       GM_xmlhttpRequest
+// ==/UserScript==
 
-Copyright (c) 2025 Conor Howlett, Adam Lashley, Tyler Blume
+$(document).ready(function () {
+    'use strict';
+    identifyPageAndExecuteScripts();
+    document.addEventListener('pjax:end', identifyPageAndExecuteScripts);
+    var observer = new MutationObserver(function () {
+        identifyPageAndExecuteScripts();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+});
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+function identifyPageAndExecuteScripts() {
+    // updated selector for new bootstrap classes (btn-light)
+    if ($("button.legendHider.btn.btn-light.btn-sm").length) {
+        modifyDashboard();
+    }
+}
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+unsafeWindow.identifyPageAndExecuteScripts = exportFunction(identifyPageAndExecuteScripts, unsafeWindow);
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+function modifyDashboard() {
+    addCopyIssueIdButton();
+}
 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+function extractTextFromBoxNew() {
+    const boxNewElement = document.querySelector('.boxnew');
+    if (boxNewElement) {
+        return boxNewElement.innerText.trim();
+    }
+    return '';
+}
+
+function addCopyIssueIdButton() {
+    var target = $("button.legendHider.btn.btn-light.btn-sm");
+    if (!$("#bdButton").length && target.length) {
+        const collated_copyrights = extractTextFromBoxNew();
+        if (!collated_copyrights) {
+            console.log("No copyrights found");
+            return;
+        }
+        console.log(collated_copyrights);
+
+        var plainBd = $("<input />", {
+            "type": "button",
+            "value": "Copy license",
+            "id": "bdButton",
+            "title": "Copy license to clipboard",
+            "data-clipboard-text": collated_copyrights,
+            "style": "font-size: 10px; padding: 2px 6px; margin-right: 4px;"
+        });
+        target.before(plainBd);
+        new Clipboard('#bdButton');
+    }
+}
