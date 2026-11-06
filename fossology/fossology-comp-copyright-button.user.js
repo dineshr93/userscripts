@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        Fossology open Component + Copyright
 // @namespace   com.dinesh
-// @description Adds a button per row in Browse that opens the component page and the copyright page
-// @version     1.0.0
+// @description Adds a button after each row checkbox in Browse that opens the component and copyright pages
+// @version     1.1.0
 // @include     /^https?:\/\/[^\/]*fossology[^\/]*\/.*[?&]mod=browse(&|$).*/
 // @grant       GM_openInTab
 // ==/UserScript==
@@ -11,28 +11,31 @@
   'use strict';
 
   function addButtons() {
-    document.querySelectorAll('#browsetbl tbody tr').forEach(function (row) {
-      if (row.querySelector('.fo-open-both')) return;
+    document.querySelectorAll('input.browse-upload-checkbox').forEach(function (cb) {
+      if (cb.nextElementSibling && cb.nextElementSibling.classList.contains('fo-open-both')) return;
 
-      var a = row.querySelector('a[href*="upload="][href*="item="]');
-      if (!a) return;
+      var row = cb.closest('tr');
+      if (!row) return;
 
-      var u = new URL(a.getAttribute('href'), location.href);
-      var upload = u.searchParams.get('upload');
+      var upload = cb.value;
+      var link = row.querySelector('a[href*="item="]');
+      if (!upload || !link) return;
+
+      var u = new URL(link.getAttribute('href'), location.href);
       var item = u.searchParams.get('item');
-      if (!upload || !item) return;
+      var folder = u.searchParams.get('folder') || '';
+      if (!item) return;
 
       var base = location.origin + location.pathname;
       var componentUrl = base + '?mod=license&upload=' + upload +
-        '&folder=' + (u.searchParams.get('folder') || '') +
-        '&item=' + item + '&show=quick';
+        '&folder=' + folder + '&item=' + item + '&show=quick';
       var copyrightUrl = base + '?mod=copyright-hist&show=quick&upload=' + upload +
         '&item=' + item;
 
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'fo-open-both';
-      btn.textContent = 'Open Comp + ©';
+      btn.textContent = 'Comp + ©';
       btn.title = 'Open component page and copyright page';
       btn.style.cssText = 'font-size:10px;padding:2px 6px;margin-left:6px;';
       btn.addEventListener('click', function (e) {
@@ -42,11 +45,10 @@
         GM_openInTab(copyrightUrl, { active: false, insert: true });
       });
 
-      a.parentNode.insertBefore(btn, a.nextSibling);
+      cb.insertAdjacentElement('afterend', btn);
     });
   }
 
-  // Rows are loaded via AJAX (DataTables), so watch for changes
   var timer;
   new MutationObserver(function () {
     clearTimeout(timer);
