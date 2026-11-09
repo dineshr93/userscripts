@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HF Multi-part aria2c Downloader (hget)
 // @namespace    https://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  Adds "hget" buttons for split .gguf / .hgn / .safetensors files on HF model tree pages
 // @author       you
 // @match        https://huggingface.co/*
