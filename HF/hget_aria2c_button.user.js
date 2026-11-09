@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HF GGUF/HGN/Safetensors aria2c "hget" Button
 // @namespace    hf-gguf-aria2c
-// @version      1.4
+// @version      1.5
 // @description  Adds "hget" button on HF .gguf / .hgn / .safetensors pages. Copies aria2c cmd
 // @author       you
 // @match        https://huggingface.co/*
